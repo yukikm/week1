@@ -35,21 +35,33 @@ describe("HelloWorld", function () {
 
     it("Should return true for correct proof", async function () {
         //[assignment] Add comments to explain what each line is doing
+        // Input values and perform the proof with Groth16.
         const { proof, publicSignals } = await groth16.fullProve({"a":"1","b":"2"}, "contracts/circuits/HelloWorld/HelloWorld_js/HelloWorld.wasm","contracts/circuits/HelloWorld/circuit_final.zkey");
 
+        // Log output values.
         console.log('1x2 =',publicSignals[0]);
 
+        // Change values of type string in array to type BigInt.
         const editedPublicSignals = unstringifyBigInts(publicSignals);
+        // Change values of type string existing in the object to type BigInt
         const editedProof = unstringifyBigInts(proof);
+        // Simulate Groth16 verification and store output values in calldata values.
         const calldata = await groth16.exportSolidityCallData(editedProof, editedPublicSignals);
     
+        // Format the value of calldata. Change the values in the array to BigInt type and then to string type.
         const argv = calldata.replace(/["[\]\s]/g, "").split(',').map(x => BigInt(x).toString());
-    
+
+        // Finally, the verifyProof function verifies that the proof is correct. Get the value of input value a for use in verification.
         const a = [argv[0], argv[1]];
+        // Finally, the verifyProof function verifies that the proof is correct. Get the value of input value b for use in verification.
         const b = [[argv[2], argv[3]], [argv[4], argv[5]]];
+        // Finally, the verifyProof function verifies that the proof is correct. Obtain the value of output value c to be used in the verification.
         const c = [argv[6], argv[7]];
+    
+        // Extract the values expected as output in the proof result.
         const Input = argv.slice(8);
 
+        // Checks if the proof is valid. If it is valid, true is returned and the test is successful.
         expect(await verifier.verifyProof(a, b, c, Input)).to.be.true;
     });
     it("Should return false for invalid proof", async function () {
