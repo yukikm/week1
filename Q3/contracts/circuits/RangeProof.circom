@@ -17,7 +17,7 @@ template RangeProof(n) {
     high.in[0] <== in;
     high.in[1] <== range[1];
 
-    if(low.out[0]==1 && high.out[0]==1){
+    if(low.out==1 && high.out==1){
         out <== 1;
     } else {
         out <== 0;
